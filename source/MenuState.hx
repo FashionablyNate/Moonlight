@@ -1,28 +1,37 @@
 package;
 
 import flixel.FlxG;
-import flixel.FlxSprite;
 import flixel.FlxState;
-import flixel.text.FlxText;
 import flixel.ui.FlxButton;
-import flixel.util.FlxColor;
 
 class MenuState extends FlxState
 {
-	var _gameTitle:FlxText;
-	var _bg:FlxSprite;
-	var _startButton:FlxButton;
+	var playButton:FlxButton;
 
-	override public function create():Void
+	override public function create()
 	{
-		// fade in from black
-		FlxG.cameras.flash(FlxColor.BLACK, 3);
-		FlxG.mouse.visible = true;
+		// creates a FlxButton object and assigns the playButton variable at position 0, 0 with the word "play"
+		// it will call clickPlay() function upon clicking
+		playButton = new FlxButton(0, 0, "Play", clickPlay);
 
-		_gameTitle = new FlxText(10, 90, 300, "Moonlight");
-		_gameTitle.setFormat(null, 16, FlxColor.WHITE, CENTER);
-		add(_gameTitle);
+		// adds object to the state, so it becomes visible and usable
+		add(playButton);
 
-		// adding in background image
+		// centers play button on screen
+		playButton.screenCenter();
+
+		super.create();
+	}
+
+	override public function update(elapsed:Float)
+	{
+		super.update(elapsed);
+	}
+
+	// called when user clicks play button
+	function clickPlay()
+	{
+		// this switches the state to a new instance of PlayState
+		FlxG.switchState(new PlayState());
 	}
 }
