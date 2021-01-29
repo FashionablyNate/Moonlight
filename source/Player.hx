@@ -33,7 +33,7 @@ class Player extends FlxSprite
 		animation.add("u", [7, 6, 8, 6], 6, false);
 		animation.add("d", [1, 0, 2, 0], 6, false);
 
-		// adds drag which slows down an object which isn't being moved
+		// adds drag which slows down an object which isn't being moved.
 		drag.x = drag.y = 1600;
 	}
 
