@@ -18,8 +18,8 @@ class Player extends FlxSprite
 		// passing x and y as arguments
 		super(x, y);
 
-		// tells the sprite to use playerBig.png, that it's animated and 32x32
-		loadGraphic("assets/images/playerBig.png", true, 32, 32);
+		// tells the sprite to use player.png, that it's animated and 32x32
+		loadGraphic("assets/images/player.png", true, 32, 32);
 
 		// tells sprite not to flip when facing left, but to flip when facing right
 		// this is because I'm lazy and the sprite only faces left in my png
@@ -29,15 +29,15 @@ class Player extends FlxSprite
 		// tells sprite which in which order to play animation for which direction
 		// this also ensures that the player always ends in the stopped frame. Also
 		// tells sprite to play in 6 frames per second.
-		animation.add("lr", [4, 3, 5, 3], 6, false);
-		animation.add("u", [7, 6, 8, 6], 6, false);
-		animation.add("d", [1, 0, 2, 0], 6, false);
+		animation.add("lr", [4, 3, 5, 3], 9, false);
+		animation.add("u", [7, 6, 8, 6], 9, false);
+		animation.add("d", [1, 0, 2, 0], 9, false);
 
 		// adds drag which slows down an object which isn't being moved.
 		drag.x = drag.y = 1600;
 
-		setSize(16, 16); // sets player size smaller so he can fit through doorways
-		offset.set(8, 8); //
+		setSize(12, 27); // sets player size smaller so he can fit through doorways
+		offset.set(10, 3); //
 	}
 
 	function updateMovement()

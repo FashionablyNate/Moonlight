@@ -9,6 +9,6 @@ class Main extends Sprite
 	{
 		super();
 		// tells main to start in MenuState
-		addChild(new FlxGame(480, 270, MenuState));
+		addChild(new FlxGame(384, 216, MenuState));
 	}
 }
