@@ -1,3 +1,8 @@
+.vscode/extensions.json
+.vscode/launch.json
+.vscode/settings.json
+.vscode/tasks.json
+assets/images/player.xcf
 export/html5/bin/favicon.png
 export/html5/bin/index.html
 export/html5/bin/Moonlight.js
@@ -24,3 +29,5 @@ export/html5/haxe/ManifestResources.hx
 export/html5/haxe/release.hxml
 export/html5/obj/webfont/monsterrat.ttf
 export/html5/obj/webfont/nokiafc22.ttf
+assets/images/player.xcf
+assets/images/player.xcf
