@@ -893,7 +893,7 @@ ApplicationMain.main = function() {
 ApplicationMain.create = function(config) {
 	var app = new openfl_display_Application();
 	ManifestResources.init(config);
-	app.meta.h["build"] = "2";
+	app.meta.h["build"] = "3";
 	app.meta.h["company"] = "HaxeFlixel";
 	app.meta.h["file"] = "Moonlight";
 	app.meta.h["name"] = "Moonlight";
@@ -8261,9 +8261,9 @@ var Player = function(x,y) {
 	this.loadGraphic("assets/images/playerBig.png",true,32,32);
 	this._facingFlip.h[1] = { x : false, y : false};
 	this._facingFlip.h[16] = { x : true, y : false};
-	this.animation.add("lr",[3,4,3,5],6,false);
-	this.animation.add("u",[6,7,6,8],6,false);
-	this.animation.add("d",[0,1,0,2],6,false);
+	this.animation.add("lr",[4,3,5,3],6,false);
+	this.animation.add("u",[7,6,8,6],6,false);
+	this.animation.add("d",[1,0,2,0],6,false);
 	this.drag.set_x(this.drag.set_y(1600));
 };
 $hxClasses["Player"] = Player;

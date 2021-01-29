@@ -29,9 +29,9 @@ class Player extends FlxSprite
 		// tells sprite which in which order to play animation for which direction
 		// this also ensures that the player always ends in the stopped frame. Also
 		// tells sprite to play in 6 frames per second.
-		animation.add("lr", [3, 4, 3, 5], 6, false);
-		animation.add("u", [6, 7, 6, 8], 6, false);
-		animation.add("d", [0, 1, 0, 2], 6, false);
+		animation.add("lr", [4, 3, 5, 3], 6, false);
+		animation.add("u", [7, 6, 8, 6], 6, false);
+		animation.add("d", [1, 0, 2, 0], 6, false);
 
 		// adds drag which slows down an object which isn't being moved
 		drag.x = drag.y = 1600;
