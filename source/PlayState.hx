@@ -30,6 +30,10 @@ class PlayState extends FlxState
 
 		// assigns new instance of Player sprite to player variable
 		add(player);
+
+		// tells the camera to follow the player
+		FlxG.camera.follow(player, TOPDOWN, 1);
+
 		super.create();
 	}
 
