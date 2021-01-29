@@ -35,6 +35,9 @@ class Player extends FlxSprite
 
 		// adds drag which slows down an object which isn't being moved.
 		drag.x = drag.y = 1600;
+
+		setSize(16, 16); // sets player size smaller so he can fit through doorways
+		offset.set(8, 8); //
 	}
 
 	function updateMovement()
