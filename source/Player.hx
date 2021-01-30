@@ -11,6 +11,7 @@ class Player extends FlxSprite
 {
 	// constant unchanging value, so we use UPPERCASE and static inline class
 	static inline var SPEED:Float = 200;
+	public static inline var GRAVITY:Float = 600;
 
 	public function new(x:Float = 0, y:Float = 0)
 	{
@@ -36,6 +37,10 @@ class Player extends FlxSprite
 		// adds drag which slows down an object which isn't being moved.
 		drag.x = drag.y = 1600;
 
+		// adds in gravity
+		acceleration.y = GRAVITY;
+		maxVelocity.set(100, GRAVITY);
+
 		setSize(12, 27); // sets player size smaller so he can fit through doorways
 		offset.set(10, 3); //
 	}
@@ -44,56 +49,48 @@ class Player extends FlxSprite
 	{
 		// variables used to determine which key was pressed
 		var up:Bool = false;
-		var down:Bool = false;
 		var left:Bool = false;
 		var right:Bool = false;
 
 		// checks which keys are pressed and assigns then to above variabels
-		up = FlxG.keys.anyPressed([UP, W]); // up is triggered by "up arrow key" or "W"
-		down = FlxG.keys.anyPressed([DOWN, S]); // down is triggered by "down arrow key" or "S"
+		up = FlxG.keys.anyPressed([UP, W, SPACE]); // up is triggered by "up arrow key" or "W" or "SPACE"
 		left = FlxG.keys.anyPressed([LEFT, A]); // left is triggered by "left arrow key" or "A"
 		right = FlxG.keys.anyPressed([RIGHT, D]); // right is triggered by "right arrow key" or "D"
 
 		// cancels out opposing direction
-		if (up && down)
-			up = down = false;
 		if (left && right)
-			left = down = false;
+			left = right = false;
 
 		// conditional checks if player is currently moving
-		if (up || down || left || right)
+		if (up || left || right)
 		{
-			var newAngle:Float = 0; // intializes direction to the right
+			var newAngle:Float = 0; // intializes direction to 0
 			if (up) // conditional checks for up key being pressed
 			{
 				newAngle = -90; // sets direction N
 				if (left) // conditional checks if left key is ALSO pressed
-					newAngle -= 45; // sets direction NW
+					newAngle = -135; // sets direction NW
 				else if (right) // condition checks if left key is ALSO pressed
-					newAngle += 45; // sets direction NE
-				facing = FlxObject.UP; // tells sprite to display up frames
-			}
-			else if (down)
-			{
-				newAngle = 90; // sets direction S
-				if (left) // conditional checks if left is ALSO pressed
-					newAngle += 45; // sets direction SW
-				else if (right) // conditional checks if right is ALSO pressed
-					newAngle -= 45; // sets direction SE
-				facing = FlxObject.DOWN; // tells sprite to display down frames
+					newAngle = -45; // sets direction NE
+
+				// maintains velocty.x and sets velocity.y to -200
+				velocity.set(velocity.x, -200);
 			}
 			else if (left) // condtional checks if left key is pressed
 			{
 				newAngle = 180; // sets direction W
 				facing = FlxObject.LEFT; // tells sprite to display left frames
+				// sets velocity.x to SPEED and maintains velocity.y
+				velocity.set(SPEED, velocity.y);
 			}
 			else if (right) // conditional checks if right key is pressed
 			{
 				newAngle = 0; // sets direction E
 				facing = FlxObject.RIGHT; // tells sprite to display right frames
+				// sets velocity.x to SPEED and maintains velocity.y
+				velocity.set(SPEED, velocity.y);
 			}
-			// sets velocity.x to SPEED and velocity.y to 0
-			velocity.set(SPEED, 0);
+
 			// rotates around point (0, 0) by angle we just found (newAngle)
 			velocity.rotate(FlxPoint.weak(0, 0), newAngle);
 
@@ -109,9 +106,6 @@ class Player extends FlxSprite
 					// if player faces up
 					case FlxObject.UP:
 						animation.play("u"); // play up animation
-					// if player faces down
-					case FlxObject.DOWN:
-						animation.play("d"); // play down animation
 				}
 			}
 		}
