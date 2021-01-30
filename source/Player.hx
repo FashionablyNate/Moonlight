@@ -4,14 +4,18 @@ import AssetsPaths.AssetPaths;
 import flixel.FlxG;
 import flixel.FlxObject;
 import flixel.FlxSprite;
+import flixel.addons.util.FlxFSM.FlxFSMState;
+import flixel.addons.util.FlxFSM;
 import flixel.math.FlxPoint;
 import flixel.util.FlxColor;
 
 class Player extends FlxSprite
 {
 	// constant unchanging value, so we use UPPERCASE and static inline class
-	static inline var SPEED:Float = 200;
 	public static inline var GRAVITY:Float = 600;
+
+	// declares finite state machine variable
+	public var fsm:FlxFSM<FlxSprite>;
 
 	public function new(x:Float = 0, y:Float = 0)
 	{
@@ -30,93 +34,100 @@ class Player extends FlxSprite
 		// tells sprite which in which order to play animation for which direction
 		// this also ensures that the player always ends in the stopped frame. Also
 		// tells sprite to play in 6 frames per second.
-		animation.add("lr", [4, 3, 5, 3], 9, false);
-		animation.add("u", [7, 6, 8, 6], 9, false);
-		animation.add("d", [1, 0, 2, 0], 9, false);
+		animation.add("standing", [3], 9);
+		animation.add("walking", [4, 3, 5, 3], 9);
+		animation.add("jumping", [3], 9);
 
-		// adds drag which slows down an object which isn't being moved.
-		drag.x = drag.y = 1600;
-
-		// adds in gravity
+		// adds in gravity and sets max velocity
 		acceleration.y = GRAVITY;
 		maxVelocity.set(100, GRAVITY);
 
 		setSize(12, 27); // sets player size smaller so he can fit through doorways
-		offset.set(10, 3); //
-	}
+		offset.set(10, 3); // sets player offset from actual size and 32x32 dimensions
 
-	function updateMovement()
-	{
-		// variables used to determine which key was pressed
-		var up:Bool = false;
-		var left:Bool = false;
-		var right:Bool = false;
-
-		// checks which keys are pressed and assigns then to above variabels
-		up = FlxG.keys.anyPressed([UP, W, SPACE]); // up is triggered by "up arrow key" or "W" or "SPACE"
-		left = FlxG.keys.anyPressed([LEFT, A]); // left is triggered by "left arrow key" or "A"
-		right = FlxG.keys.anyPressed([RIGHT, D]); // right is triggered by "right arrow key" or "D"
-
-		// cancels out opposing direction
-		if (left && right)
-			left = right = false;
-
-		// conditional checks if player is currently moving
-		if (up || left || right)
-		{
-			var newAngle:Float = 0; // intializes direction to 0
-			if (up) // conditional checks for up key being pressed
-			{
-				newAngle = -90; // sets direction N
-				if (left) // conditional checks if left key is ALSO pressed
-					newAngle = -135; // sets direction NW
-				else if (right) // condition checks if left key is ALSO pressed
-					newAngle = -45; // sets direction NE
-
-				// maintains velocty.x and sets velocity.y to -200
-				velocity.set(velocity.x, -200);
-			}
-			else if (left) // condtional checks if left key is pressed
-			{
-				newAngle = 180; // sets direction W
-				facing = FlxObject.LEFT; // tells sprite to display left frames
-				// sets velocity.x to SPEED and maintains velocity.y
-				velocity.set(SPEED, velocity.y);
-			}
-			else if (right) // conditional checks if right key is pressed
-			{
-				newAngle = 0; // sets direction E
-				facing = FlxObject.RIGHT; // tells sprite to display right frames
-				// sets velocity.x to SPEED and maintains velocity.y
-				velocity.set(SPEED, velocity.y);
-			}
-
-			// rotates around point (0, 0) by angle we just found (newAngle)
-			velocity.rotate(FlxPoint.weak(0, 0), newAngle);
-
-			// ensures the player isn't stopped and that they aren't touching anything (like a wall)
-			if ((velocity.x != 0 || velocity.y != 0) && touching == FlxObject.NONE)
-			{
-				// switches between directions to face
-				switch (facing)
-				{
-					// if the player faces left or right
-					case FlxObject.LEFT, FlxObject.RIGHT:
-						animation.play("lr"); // play left/right animation
-					// if player faces up
-					case FlxObject.UP:
-						animation.play("u"); // play up animation
-				}
-			}
-		}
+		fsm = new FlxFSM<FlxSprite>(this);
+		fsm.transitions.add(Idle, Jump, Conditions.jump).add(Jump, Idle, Conditions.grounded).start(Idle);
 	}
 
 	// overrides update() function so this is called everytime update() is called
-	override function update(elapsed:Float)
+	override function update(elapsed:Float):Void
 	{
-		// calls updateMovement() function so each time update() is called,
-		// player's velocity is updated.
-		updateMovement();
+		// calls fsm so player state can be determined and set
+		fsm.update(elapsed);
 		super.update(elapsed);
+	}
+}
+
+class Conditions
+{
+	public static function jump(Owner:FlxSprite):Bool
+	{
+		// conditional if player just pressed jump, and if they're grounded
+		return (FlxG.keys.justPressed.UP && Owner.isTouching(FlxObject.DOWN));
+	}
+
+	public static function grounded(Owner:FlxSprite):Bool
+	{
+		// conditional if player is grounded
+		return Owner.isTouching(FlxObject.DOWN);
+	}
+
+	public static function animationFinished(Owner:FlxSprite):Bool
+	{
+		// conditional animation is finished
+		return Owner.animation.finished;
+	}
+}
+
+class Idle extends FlxFSMState<FlxSprite>
+{
+	override public function enter(owner:FlxSprite, fsm:FlxFSM<FlxSprite>):Void
+	{
+		// this is the intial and idle state
+		owner.animation.play("standing");
+	}
+
+	override public function update(elapsed:Float, owner:FlxSprite, fsm:FlxFSM<FlxSprite>):Void
+	{
+		owner.acceleration.x = 0;
+		if (FlxG.keys.pressed.LEFT || FlxG.keys.pressed.RIGHT)
+		{
+			// conditional, if pressing left, set FlxObject to left, else set FLxObject to right.
+			owner.facing = FlxG.keys.pressed.LEFT ? FlxObject.LEFT : FlxObject.RIGHT;
+			// plays walking animation
+			owner.animation.play("walking");
+			// if left key pressed set acceleration to -300 else set it to 300
+			owner.acceleration.x = FlxG.keys.pressed.LEFT ? -300 : 300;
+		}
+		else
+		{
+			// plays standing animation
+			owner.animation.play("standing");
+			// reduces velocity
+			owner.velocity.x *= 0.9;
+		}
+	}
+}
+
+class Jump extends FlxFSMState<FlxSprite>
+{
+	override public function enter(owner:FlxSprite, fsm:FlxFSM<FlxSprite>):Void
+	{
+		// plays jumping animation
+		owner.animation.play("jumping");
+		// sets y velocity to -200 (so player moves against gravity)
+		owner.velocity.y = -200;
+	}
+
+	override public function update(elapsed:Float, owner:FlxSprite, fsm:FlxFSM<FlxSprite>):Void
+	{
+		// initializes acceleration to 0
+		owner.acceleration.x = 0;
+		// if either right or left key pressed
+		if (FlxG.keys.pressed.LEFT || FlxG.keys.pressed.RIGHT)
+		{
+			// if left key pressed set acceleration to -300 else set it to 300
+			owner.acceleration.x = FlxG.keys.pressed.LEFT ? -300 : 300;
+		}
 	}
 }
