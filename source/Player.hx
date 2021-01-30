@@ -24,26 +24,26 @@ class Player extends FlxSprite
 		super(x, y);
 
 		// tells the sprite to use player.png, that it's animated and 32x32
-		loadGraphic("assets/images/player.png", true, 32, 32);
+		loadGraphic("assets/images/player.png", true, 16, 16);
 
 		// tells sprite not to flip when facing left, but to flip when facing right
 		// this is because I'm lazy and the sprite only faces left in my png
-		setFacingFlip(FlxObject.LEFT, false, false);
-		setFacingFlip(FlxObject.RIGHT, true, false);
+		setFacingFlip(FlxObject.LEFT, true, false);
+		setFacingFlip(FlxObject.RIGHT, false, false);
 
 		// tells sprite which in which order to play animation for which direction
 		// this also ensures that the player always ends in the stopped frame. Also
 		// tells sprite to play in 6 frames per second.
-		animation.add("standing", [3], 9);
-		animation.add("walking", [4, 3, 5, 3], 9);
-		animation.add("jumping", [3], 9);
+		animation.add("standing", [0], 6);
+		animation.add("walking", [1, 0, 2, 0], 6);
+		animation.add("jumping", [6], 6);
 
 		// adds in gravity and sets max velocity
 		acceleration.y = GRAVITY;
 		maxVelocity.set(100, GRAVITY);
 
-		setSize(12, 27); // sets player size smaller so he can fit through doorways
-		offset.set(10, 3); // sets player offset from actual size and 32x32 dimensions
+		setSize(8, 16); // sets player size smaller so he can fit through doorways
+		offset.set(4, 0); // sets player offset from actual size and 32x32 dimensions
 
 		fsm = new FlxFSM<FlxSprite>(this);
 		fsm.transitions.add(Idle, Jump, Conditions.jump).add(Jump, Idle, Conditions.grounded).start(Idle);
