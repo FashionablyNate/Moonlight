@@ -131,3 +131,12 @@ class Jump extends FlxFSMState<FlxSprite>
 		}
 	}
 }
+
+class SuperJump extends Jump
+{
+	override public function enter(owner:FlxSprite, fsm:FlxFSM<FlxSprite>):Void
+	{
+		owner.animation.play("jumping");
+		owner.velocity.y = -300;
+	}
+}
