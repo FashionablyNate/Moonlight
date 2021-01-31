@@ -22,6 +22,10 @@ class PlayState extends FlxState
 	var potion:FlxTypedGroup<Potion>;
 	// variable for grunt entity
 	var grunt:FlxTypedGroup<Grunt>;
+	// variable for heads up display
+	var hud:HUD;
+	// variable for health
+	var health:Int = 3;
 
 	override public function create()
 	{
@@ -46,6 +50,9 @@ class PlayState extends FlxState
 
 		// tells the camera to follow the player
 		FlxG.camera.follow(player, TOPDOWN, 1);
+
+		hud = new HUD(); // creates new instance of HUD
+		add(hud); // adds HUD to state
 
 		super.create();
 	}
