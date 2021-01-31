@@ -23,7 +23,7 @@ class Player extends FlxSprite
 		// passing x and y as arguments
 		super(x, y);
 
-		// tells the sprite to use player.png, that it's animated and 32x32
+		// tells the sprite to use player.png, that it's animated and 16x16
 		loadGraphic("assets/images/player.png", true, 16, 16);
 
 		// tells sprite not to flip when facing left, but to flip when facing right
@@ -43,7 +43,7 @@ class Player extends FlxSprite
 		maxVelocity.set(100, GRAVITY);
 
 		setSize(8, 16); // sets player size smaller so he can fit through doorways
-		offset.set(4, 0); // sets player offset from actual size and 32x32 dimensions
+		offset.set(4, 0); // sets player offset from actual size and 16x16 dimensions
 
 		fsm = new FlxFSM<FlxSprite>(this);
 		fsm.transitions.add(Idle, Jump, Conditions.jump).add(Jump, Idle, Conditions.grounded).start(Idle);

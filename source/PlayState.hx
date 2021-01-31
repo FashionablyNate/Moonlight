@@ -20,6 +20,8 @@ class PlayState extends FlxState
 	var walls:FlxTilemap;
 	// variable for potion entity
 	var potion:FlxTypedGroup<Potion>;
+	// variable for grunt entity
+	var grunt:FlxTypedGroup<Grunt>;
 
 	override public function create()
 	{
@@ -32,6 +34,9 @@ class PlayState extends FlxState
 
 		potion = new FlxTypedGroup<Potion>(); // initializes potion group
 		add(potion); // adds potion to state
+
+		grunt = new FlxTypedGroup<Grunt>();
+		add(grunt);
 
 		player = new Player();
 		map.loadEntities(placeEntities, "entities"); // goes through entities layer and places each one
@@ -52,17 +57,21 @@ class PlayState extends FlxState
 		FlxG.collide(potion, walls); // checks for collisions between potion and walls, disallows overlap
 
 		FlxG.overlap(player, potion, playerTouchPotion); // after every frame, check for overlaps and call playerTouchPotion if one exists.
+
+		FlxG.collide(grunt, walls);
+		grunt.forEachAlive(checkEnemyVision);
 	}
 
 	function placeEntities(entity:EntityData)
 	{
-		if (entity.name == "player") // conditional if the entities name is player
+		switch (entity.name)
 		{
-			player.setPosition(entity.x, entity.y); // assigns the entities position to player
-		}
-		if (entity.name == "potion") // conditional if the entities name is potion
-		{
-			potion.add(new Potion(entity.x + 4, entity.y + 4)); // assigns the entities position to potion
+			case "player": // conditional if the entities name is player
+				player.setPosition(entity.x, entity.y); // assigns the entities position to player
+			case "potion": // conditional if the entities name is potion
+				potion.add(new Potion(entity.x + 4, entity.y + 4)); // assigns the entities position to potion
+			case "enemy": // conditional if entities name is grunt
+				grunt.add(new Grunt(entity.x + 4, entity.y, REGULAR)); // assigns entities position to grunt
 		}
 	}
 
@@ -77,6 +86,20 @@ class PlayState extends FlxState
 
 			// removes potion
 			potion.kill();
+		}
+	}
+
+	function checkEnemyVision(grunt:Grunt)
+	{
+		if (walls.ray(grunt.getMidpoint(), player.getMidpoint()))
+		{
+			grunt.seesPlayer = true;
+			grunt.playerPosition = player.getMidpoint();
+			grunt.gruntPosition = grunt.getMidpoint();
+		}
+		else
+		{
+			grunt.seesPlayer = false;
 		}
 	}
 }
