@@ -26,16 +26,13 @@ class Player extends FlxSprite
 		// tells the sprite to use player.png, that it's animated and 16x16
 		loadGraphic("assets/images/player.png", true, 16, 16);
 
-		// tells sprite not to flip when facing left, but to flip when facing right
-		// this is because I'm lazy and the sprite only faces left in my png
-		setFacingFlip(FlxObject.LEFT, true, false);
-		setFacingFlip(FlxObject.RIGHT, false, false);
-
 		// tells sprite which in which order to play animation for which direction
 		// this also ensures that the player always ends in the stopped frame. Also
 		// tells sprite to play in 6 frames per second.
-		animation.add("standing", [0], 6);
-		animation.add("walking", [1, 0, 2, 0], 6);
+		animation.add("facingRight", [0], 6);
+		animation.add("facingLeft", [3], 6);
+		animation.add("walkingRight", [1, 0, 2, 0], 6);
+		animation.add("walkingLeft", [4, 3, 5, 3], 6);
 		animation.add("jumping", [6], 6);
 
 		// adds in gravity and sets max velocity
@@ -84,7 +81,14 @@ class Idle extends FlxFSMState<FlxSprite>
 	override public function enter(owner:FlxSprite, fsm:FlxFSM<FlxSprite>):Void
 	{
 		// this is the intial and idle state
-		owner.animation.play("standing");
+		if (owner.facing == FlxObject.LEFT)
+		{
+			owner.animation.play("facingLeft");
+		}
+		else
+		{
+			owner.animation.play("facingRight");
+		}
 	}
 
 	override public function update(elapsed:Float, owner:FlxSprite, fsm:FlxFSM<FlxSprite>):Void
@@ -95,14 +99,28 @@ class Idle extends FlxFSMState<FlxSprite>
 			// conditional, if pressing left, set FlxObject to left, else set FLxObject to right.
 			owner.facing = FlxG.keys.pressed.LEFT ? FlxObject.LEFT : FlxObject.RIGHT;
 			// plays walking animation
-			owner.animation.play("walking");
+			if (owner.facing == FlxObject.LEFT)
+			{
+				owner.animation.play("walkingLeft");
+			}
+			else
+			{
+				owner.animation.play("walkingRight");
+			}
 			// if left key pressed set acceleration to -300 else set it to 300
 			owner.acceleration.x = FlxG.keys.pressed.LEFT ? -300 : 300;
 		}
 		else
 		{
 			// plays standing animation
-			owner.animation.play("standing");
+			if (owner.facing == FlxObject.LEFT)
+			{
+				owner.animation.play("facingLeft");
+			}
+			else
+			{
+				owner.animation.play("facingRight");
+			}
 			// reduces velocity
 			owner.velocity.x *= 0.9;
 		}
