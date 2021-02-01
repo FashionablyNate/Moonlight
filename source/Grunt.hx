@@ -31,12 +31,13 @@ class Grunt extends FlxSprite
 	{
 		super(x, y);
 		this.type = type;
-		var graphic = if (type == ARCHER) "assets/images/boss.png" else "assets/images/player.png"; // conditional loads sprite for specific type of enemy
+		var graphic = if (type == ARCHER) "assets/images/boss.png" else "assets/images/grunt.png"; // conditional loads sprite for specific type of enemy
 		loadGraphic(graphic, true, 16, 16); // loads specified graphic and indicates it is 16x16
-		setFacingFlip(FlxObject.LEFT, true, false); // flips sprite
-		setFacingFlip(FlxObject.RIGHT, false, false); // if facing left
-		animation.add("walking", [1, 0, 2, 0], 6, false); // animation pattern for movement
+		animation.add("walkingRight", [1, 0, 2, 0], 6);
+		animation.add("walkingLeft", [4, 3, 5, 3], 6);
 		animation.add("jumping", [6], 6);
+		animation.add("attackLeft", [10, 11], 2);
+		animation.add("attackRight", [14, 15], 2);
 		drag.x = drag.y = 10; // amount of drag on entity (allows slowdown)
 		setSize(8, 16); // sets offset
 		offset.set(4, 0); // for entity inside it's 16x16 box
@@ -55,15 +56,14 @@ class Grunt extends FlxSprite
 	{
 		if ((velocity.x != 0 || velocity.y != 0) && touching == FlxObject.NONE) // conditional if grunt is moving
 		{
-			if (velocity.x < 0) // conditional if grunt is moving on x-axis
+			if (velocity.x < 0) // if moving left
 			{
-				facing = FlxObject.LEFT; // tells sprite to face left
+				animation.play("walkingLeft"); // set animation left
 			}
-			else // conditional if grunt is moving on y-axis
+			else // else moving right
 			{
-				facing = FlxObject.RIGHT; // tells sprite to face right
+				animation.play("walkingRight"); // set animation right
 			}
-			animation.play("walking"); // plays walking animation
 		}
 		brain.update(elapsed);
 		super.update(elapsed);
@@ -120,13 +120,12 @@ class Grunt extends FlxSprite
 				velocity.rotate(FlxPoint.weak(), moveDirection); // sets movement direction found above
 				if (velocity.x < 0) // if moving left
 				{
-					facing = FlxObject.LEFT; // set animation left
+					animation.play("walkingLeft"); // set animation left
 				}
 				else // else moving right
 				{
-					facing = FlxObject.RIGHT; // set animation right
+					animation.play("walkingRight"); // set animation right
 				}
-				animation.play("walking"); // calls sprite animation
 			}
 			else // grunt has reached player
 			{
@@ -142,8 +141,14 @@ class Grunt extends FlxSprite
 		{
 			if (distance < 15 && distance > -15)
 			{
-				animation.play("jumping");
-				velocity.set(0, -200);
+				if (distance > 0)
+				{
+					animation.play("attackLeft");
+				}
+				else
+				{
+					animation.play("attackRight");
+				}
 			}
 			else
 			{
