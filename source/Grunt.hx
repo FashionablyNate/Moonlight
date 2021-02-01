@@ -36,6 +36,7 @@ class Grunt extends FlxSprite
 		setFacingFlip(FlxObject.LEFT, true, false); // flips sprite
 		setFacingFlip(FlxObject.RIGHT, false, false); // if facing left
 		animation.add("walking", [1, 0, 2, 0], 6, false); // animation pattern for movement
+		animation.add("jumping", [6], 6);
 		drag.x = drag.y = 10; // amount of drag on entity (allows slowdown)
 		setSize(8, 16); // sets offset
 		offset.set(4, 0); // for entity inside it's 16x16 box
@@ -104,25 +105,50 @@ class Grunt extends FlxSprite
 		}
 		else
 		{
-			if (gruntPosition.x > playerPosition.x) // if player is left of grunt
+			var distance = playerPosition.x - gruntPosition.x; // declares distance between grunt and player
+			if (!(distance < 15) || !(-15 < distance)) // if grunt has not yet reacher player
 			{
-				moveDirection = 180; // move left
+				if (gruntPosition.x > playerPosition.x) // if player is left of grunt
+				{
+					moveDirection = 180; // move left
+				}
+				else // else player is right of grunt
+				{
+					moveDirection = 0; // move right
+				}
+				velocity.set(SPEED, 0); // sets velocity to top speed
+				velocity.rotate(FlxPoint.weak(), moveDirection); // sets movement direction found above
+				if (velocity.x < 0) // if moving left
+				{
+					facing = FlxObject.LEFT; // set animation left
+				}
+				else // else moving right
+				{
+					facing = FlxObject.RIGHT; // set animation right
+				}
+				animation.play("walking"); // calls sprite animation
+			}
+			else // grunt has reached player
+			{
+				brain.activeState = attack; // sets state to attack
+			}
+		}
+	}
+
+	function attack(elapsed:Float)
+	{
+		var distance = playerPosition.x - gruntPosition.x;
+		if (isTouching(FlxObject.DOWN))
+		{
+			if (distance < 15 && distance > -15)
+			{
+				animation.play("jumping");
+				velocity.set(0, -200);
 			}
 			else
 			{
-				moveDirection = 0; // move right
+				brain.activeState = chase;
 			}
-			velocity.set(SPEED, 0); // sets velocity to top speed
-			velocity.rotate(FlxPoint.weak(), moveDirection); // sets movement direction found above
-			if (velocity.x < 0) // if move left
-			{
-				facing = FlxObject.LEFT; // set animation left
-			}
-			else
-			{
-				facing = FlxObject.RIGHT; // set animation right
-			}
-			animation.play("walking"); // calls sprite animation
 		}
 	}
 }

@@ -67,6 +67,8 @@ class PlayState extends FlxState
 
 		FlxG.collide(grunt, walls);
 		grunt.forEachAlive(checkEnemyVision);
+
+		FlxG.collide(player, grunt);
 	}
 
 	function placeEntities(entity:EntityData)
