@@ -6,8 +6,11 @@ import flixel.FlxObject;
 import flixel.FlxSprite;
 import flixel.addons.util.FlxFSM.FlxFSMState;
 import flixel.addons.util.FlxFSM;
+import flixel.effects.FlxFlicker;
 import flixel.math.FlxPoint;
 import flixel.util.FlxColor;
+
+using flixel.util.FlxSpriteUtil;
 
 class Player extends FlxSprite
 {

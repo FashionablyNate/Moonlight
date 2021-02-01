@@ -10,6 +10,8 @@ import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.tile.FlxTilemap;
 import js.html.CaretPosition;
 
+using flixel.util.FlxSpriteUtil;
+
 class PlayState extends FlxState
 {
 	// defines player variable
@@ -68,7 +70,7 @@ class PlayState extends FlxState
 		FlxG.collide(grunt, walls);
 		grunt.forEachAlive(checkEnemyVision);
 
-		FlxG.collide(player, grunt);
+		FlxG.collide(player, grunt, collided);
 	}
 
 	function placeEntities(entity:EntityData)
@@ -110,5 +112,11 @@ class PlayState extends FlxState
 		{
 			grunt.seesPlayer = false;
 		}
+	}
+
+	function collided(Sprite1:FlxObject, Sprite2:FlxObject):Void
+	{
+		Sprite1.velocity.set(-50, -100);
+		Sprite2.velocity.set(50, -100);
 	}
 }

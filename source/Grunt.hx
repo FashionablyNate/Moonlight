@@ -36,8 +36,8 @@ class Grunt extends FlxSprite
 		animation.add("walkingRight", [1, 0, 2, 0], 6);
 		animation.add("walkingLeft", [4, 3, 5, 3], 6);
 		animation.add("jumping", [6], 6);
-		animation.add("attackLeft", [10, 11], 2);
-		animation.add("attackRight", [14, 15], 2);
+		animation.add("attackLeft", [10, 11], 6);
+		animation.add("attackRight", [14, 15], 6);
 		drag.x = drag.y = 10; // amount of drag on entity (allows slowdown)
 		setSize(8, 16); // sets offset
 		offset.set(4, 0); // for entity inside it's 16x16 box
