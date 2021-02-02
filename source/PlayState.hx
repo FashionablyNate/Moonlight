@@ -8,6 +8,7 @@ import flixel.FlxState;
 import flixel.addons.editors.ogmo.FlxOgmo3Loader;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.tile.FlxTilemap;
+import flixel.util.FlxColor;
 import js.html.CaretPosition;
 
 using flixel.util.FlxSpriteUtil;
@@ -24,10 +25,12 @@ class PlayState extends FlxState
 	var potion:FlxTypedGroup<Potion>;
 	// variable for grunt entity
 	var grunt:FlxTypedGroup<Grunt>;
+
 	// variable for heads up display
-	var hud:HUD;
+	public var hud:HUD;
+
 	// variable for health
-	var health:Int = 3;
+	var health:Int = 6;
 
 	override public function create()
 	{
@@ -71,6 +74,14 @@ class PlayState extends FlxState
 		grunt.forEachAlive(checkEnemyVision);
 
 		FlxG.collide(player, grunt, collided);
+
+		if (health == 0)
+		{
+			FlxG.camera.fade(FlxColor.BLACK, 0.33, false, function()
+			{
+				FlxG.switchState(new MenuState());
+			});
+		}
 	}
 
 	function placeEntities(entity:EntityData)
@@ -114,9 +125,40 @@ class PlayState extends FlxState
 		}
 	}
 
-	function collided(Sprite1:FlxObject, Sprite2:FlxObject):Void
+	function collided(player:Player, grunt:Grunt):Void
 	{
-		Sprite1.velocity.set(-50, -100);
-		Sprite2.velocity.set(50, -100);
+		if (grunt.playerPosition.x > grunt.gruntPosition.x)
+		{
+			player.velocity.set(50, -100);
+			grunt.velocity.set(-50, -100);
+		}
+		else
+		{
+			player.velocity.set(-50, -100);
+			grunt.velocity.set(50, -100);
+		}
+
+		player.flicker(1.3);
+		switch (health)
+		{
+			case 6:
+				hud.healthIcon6.kill();
+				health = 5;
+			case 5:
+				hud.healthIcon5.kill();
+				health = 4;
+			case 4:
+				hud.healthIcon4.kill();
+				health = 3;
+			case 3:
+				hud.healthIcon3.kill();
+				health = 2;
+			case 2:
+				hud.healthIcon2.kill();
+				health = 1;
+			case 1:
+				hud.healthIcon1.kill();
+				health = 0;
+		}
 	}
 }
