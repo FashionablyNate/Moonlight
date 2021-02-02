@@ -56,6 +56,48 @@ class Player extends FlxSprite
 		fsm.update(elapsed);
 		super.update(elapsed);
 	}
+	/*override public function hurt(damage:Float):Void
+		{
+			if (!player.isFlickering())
+			{
+				if (grunt.playerPosition.x > grunt.gruntPosition.x) // if player is to the right of grunt
+				{
+					player.velocity.set(50, -100); // push player right
+				}
+				else // if player is to the left of grunt
+				{
+					player.velocity.set(-50, -100); // push player left
+				}
+
+				player.flicker(1.3); // puts flicker effect on player
+				switch (health) // switch statement that decrements health GUI
+				{
+					case 6:
+						hud.healthIcon6.kill();
+						health = 5;
+					case 5:
+						hud.healthIcon5.kill();
+						health = 4;
+					case 4:
+						hud.healthIcon4.kill();
+						health = 3;
+					case 3:
+						hud.healthIcon3.kill();
+						health = 2;
+					case 2:
+						hud.healthIcon2.kill();
+						health = 1;
+					case 1:
+						hud.healthIcon1.kill();
+						health = 0;
+					case 0:
+						FlxG.camera.fade(FlxColor.BLACK, 1, false, function() // game over
+						{
+							FlxG.switchState(new MenuState()); // main menu
+						});
+				}
+			}
+	}*/
 }
 
 class Conditions
