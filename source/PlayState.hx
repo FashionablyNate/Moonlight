@@ -126,43 +126,46 @@ class PlayState extends FlxState
 	/* this is a function that gets called when colliding with a melee enemy. */
 	function collided(player:Player, grunt:Grunt):Void
 	{
-		if (grunt.playerPosition.x > grunt.gruntPosition.x) // if player is to the right of grunt
+		if (!player.isFlickering())
 		{
-			player.velocity.set(50, -100); // push player right
-			grunt.velocity.set(-50, -100); // push grunt left
-		}
-		else // if player is to the left of grunt
-		{
-			player.velocity.set(-50, -100); // push player left
-			grunt.velocity.set(50, -100); // push grunt right
-		}
+			if (grunt.playerPosition.x > grunt.gruntPosition.x) // if player is to the right of grunt
+			{
+				player.velocity.set(50, -100); // push player right
+				grunt.velocity.set(-50, -100); // push grunt left
+			}
+			else // if player is to the left of grunt
+			{
+				player.velocity.set(-50, -100); // push player left
+				grunt.velocity.set(50, -100); // push grunt right
+			}
 
-		player.flicker(1.3); // puts flicker effect on player
-		switch (health) // switch statement that decrements health GUI
-		{
-			case 6:
-				hud.healthIcon6.kill();
-				health = 5;
-			case 5:
-				hud.healthIcon5.kill();
-				health = 4;
-			case 4:
-				hud.healthIcon4.kill();
-				health = 3;
-			case 3:
-				hud.healthIcon3.kill();
-				health = 2;
-			case 2:
-				hud.healthIcon2.kill();
-				health = 1;
-			case 1:
-				hud.healthIcon1.kill();
-				health = 0;
-			case 0:
-				FlxG.camera.fade(FlxColor.BLACK, 0.33, false, function() // game over
-				{
-					FlxG.switchState(new MenuState()); // main menu
-				});
+			player.flicker(1.3); // puts flicker effect on player
+			switch (health) // switch statement that decrements health GUI
+			{
+				case 6:
+					hud.healthIcon6.kill();
+					health = 5;
+				case 5:
+					hud.healthIcon5.kill();
+					health = 4;
+				case 4:
+					hud.healthIcon4.kill();
+					health = 3;
+				case 3:
+					hud.healthIcon3.kill();
+					health = 2;
+				case 2:
+					hud.healthIcon2.kill();
+					health = 1;
+				case 1:
+					hud.healthIcon1.kill();
+					health = 0;
+				case 0:
+					FlxG.camera.fade(FlxColor.BLACK, 1, false, function() // game over
+					{
+						FlxG.switchState(new MenuState()); // main menu
+					});
+			}
 		}
 	}
 }
