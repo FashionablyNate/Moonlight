@@ -13,6 +13,7 @@ import js.html.CaretPosition;
 
 using flixel.util.FlxSpriteUtil;
 
+/* This is the class that controls the main play state of the game. */
 class PlayState extends FlxState
 {
 	// defines player variable
@@ -32,6 +33,7 @@ class PlayState extends FlxState
 	// variable for health
 	var health:Int = 6;
 
+	/* This is a built in function for creating sprites, maps and objects. */
 	override public function create()
 	{
 		bgColor = 0xff37003B;
@@ -62,6 +64,7 @@ class PlayState extends FlxState
 		super.create();
 	}
 
+	/* This is a built in function that updates everything inside it every frame */
 	override public function update(elapsed:Float)
 	{
 		super.update(elapsed);
@@ -70,20 +73,13 @@ class PlayState extends FlxState
 
 		FlxG.overlap(player, potion, playerTouchPotion); // after every frame, check for overlaps and call playerTouchPotion if one exists.
 
-		FlxG.collide(grunt, walls);
-		grunt.forEachAlive(checkEnemyVision);
+		FlxG.collide(grunt, walls); // allows grunts to not fall through floor
+		grunt.forEachAlive(checkEnemyVision); // checks to see if grunt can see the player
 
-		FlxG.collide(player, grunt, collided);
-
-		if (health == 0)
-		{
-			FlxG.camera.fade(FlxColor.BLACK, 0.33, false, function()
-			{
-				FlxG.switchState(new MenuState());
-			});
-		}
+		FlxG.collide(player, grunt, collided); // checks to see if the grunt has collided with the player
 	}
 
+	/* This is a function for assigning entity names from the map to variables */
 	function placeEntities(entity:EntityData)
 	{
 		switch (entity.name)
@@ -97,6 +93,7 @@ class PlayState extends FlxState
 		}
 	}
 
+	/* this is a function that decides what happens when a player touches a potion object */
 	function playerTouchPotion(player:Player, potion:Potion)
 	{
 		// verifies player and potion both exist when they overlap
@@ -111,35 +108,37 @@ class PlayState extends FlxState
 		}
 	}
 
+	/* this is a function that determines if the player is close enough for an enemy to see them */
 	function checkEnemyVision(grunt:Grunt)
 	{
-		if (walls.ray(grunt.getMidpoint(), player.getMidpoint()))
+		if (walls.ray(grunt.getMidpoint(), player.getMidpoint())) // conditional if player is in direct line of site
 		{
-			grunt.seesPlayer = true;
-			grunt.playerPosition = player.getMidpoint();
-			grunt.gruntPosition = grunt.getMidpoint();
+			grunt.seesPlayer = true; // sets seesPlayer variable to true
+			grunt.playerPosition = player.getMidpoint(); // assigns player postion to Grunt class variable
+			grunt.gruntPosition = grunt.getMidpoint(); // assigns grunt postion to Grunt class variable
 		}
 		else
 		{
-			grunt.seesPlayer = false;
+			grunt.seesPlayer = false; // sets seesPlayer variable to false
 		}
 	}
 
+	/* this is a function that gets called when colliding with a melee enemy. */
 	function collided(player:Player, grunt:Grunt):Void
 	{
-		if (grunt.playerPosition.x > grunt.gruntPosition.x)
+		if (grunt.playerPosition.x > grunt.gruntPosition.x) // if player is to the right of grunt
 		{
-			player.velocity.set(50, -100);
-			grunt.velocity.set(-50, -100);
+			player.velocity.set(50, -100); // push player right
+			grunt.velocity.set(-50, -100); // push grunt left
 		}
-		else
+		else // if player is to the left of grunt
 		{
-			player.velocity.set(-50, -100);
-			grunt.velocity.set(50, -100);
+			player.velocity.set(-50, -100); // push player left
+			grunt.velocity.set(50, -100); // push grunt right
 		}
 
-		player.flicker(1.3);
-		switch (health)
+		player.flicker(1.3); // puts flicker effect on player
+		switch (health) // switch statement that decrements health GUI
 		{
 			case 6:
 				hud.healthIcon6.kill();
@@ -159,6 +158,11 @@ class PlayState extends FlxState
 			case 1:
 				hud.healthIcon1.kill();
 				health = 0;
+			case 0:
+				FlxG.camera.fade(FlxColor.BLACK, 0.33, false, function() // game over
+				{
+					FlxG.switchState(new MenuState()); // main menu
+				});
 		}
 	}
 }
