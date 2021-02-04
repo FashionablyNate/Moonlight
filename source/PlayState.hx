@@ -117,9 +117,6 @@ class PlayState extends FlxState
 	{
 		super.update(elapsed);
 
-		if (!_player.alive)
-			FlxG.switchState(new MenuState());
-
 		// collisions with environment
 		FlxG.collide(_tileMap, _objects);
 		FlxG.overlap(_hazards, _player, overlapped);

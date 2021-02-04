@@ -6,6 +6,7 @@ import flixel.FlxSprite;
 import flixel.addons.util.FlxFSM;
 import flixel.util.FlxColor;
 import flixel.util.FlxSpriteUtil;
+import flixel.util.FlxTimer;
 
 class Player extends FlxSprite
 {
@@ -59,11 +60,29 @@ class Player extends FlxSprite
 
 		FlxSpriteUtil.flicker(this, 1, 0.02, true);
 
-		if (velocity.x > 0)
-			velocity.x = -50;
-		else
-			velocity.x = 50;
 		super.hurt(damage);
+	}
+
+	override public function kill():Void
+	{
+		if (!alive)
+			return;
+
+		super.kill();
+
+		exists = true;
+		active = false;
+		visible = false;
+		moves = false;
+		velocity.set();
+		acceleration.set();
+		FlxG.camera.shake(0.005, 1);
+		FlxG.camera.fade(0x000000, 1);
+
+		new FlxTimer().start(1, function(_)
+		{
+			FlxG.switchState(new MenuState());
+		});
 	}
 }
 
