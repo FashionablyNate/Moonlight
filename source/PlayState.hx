@@ -25,7 +25,8 @@ class PlayState extends FlxState
 {
 	// Map variables
 	var _map:FlxOgmo3Loader;
-	var _tileMap:FlxTilemap;
+
+	public var _tileMap:FlxTilemap;
 
 	// Game object variables
 	var _player:Player;
@@ -122,6 +123,8 @@ class PlayState extends FlxState
 		FlxG.overlap(_hazards, _player, overlapped);
 		FlxG.overlap(_bullets, _hazards, overlapped);
 
+		_enemies.forEachAlive(checkEnemyVision);
+
 		// returns to main menu
 		if (FlxG.keys.pressed.ESCAPE)
 			FlxG.switchState(new MenuState());
@@ -148,6 +151,20 @@ class PlayState extends FlxState
 			Sprite1.kill(); // deletes bullet
 
 		Sprite2.hurt(1); // calls hurt function on FlxObject
+	}
+
+	function checkEnemyVision(_enemies:Enemy)
+	{
+		if (_tileMap.ray(_enemies.getMidpoint(), _player.getMidpoint())) // conditional if player is in direct line of site
+		{
+			_enemies._seesPlayer = true; // sets seesPlayer variable to true
+			_enemies._playerMidpoint = _player.getMidpoint(); // assigns player postion to Grunt class variable
+			_enemies._enemyMidpoint = _enemies.getMidpoint(); // assigns grunt postion to Grunt class variable
+		}
+		else
+		{
+			_enemies._seesPlayer = false; // sets seesPlayer variable to false
+		}
 	}
 }
 /* this is a function that decides what happens when a player touches a potion object 

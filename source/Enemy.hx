@@ -6,6 +6,7 @@ import flixel.FlxSprite;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.math.FlxPoint;
 import flixel.math.FlxVelocity;
+import flixel.tile.FlxTilemap;
 import flixel.util.FlxSpriteUtil;
 import haxe.PosInfos;
 
@@ -21,11 +22,16 @@ class Enemy extends FlxSprite
 	static inline var SPEED:Float = 50; // sets speed of the enemy
 	public static inline var GRAVITY:Float = 600; // sets gravity acting on enemy (same as player)
 
+	// public variables
+	public var _tileMap:FlxTilemap;
+	public var _enemyMidpoint:FlxPoint;
+	public var _seesPlayer:Bool;
+	public var _playerMidpoint:FlxPoint;
+
 	var _moveDirection:Float; // declare variable for direction enemy should move
 
 	// intrinsic variables
 	var _type:EnemyType; // declare enemy type variable
-	var _enemyMidpoint:FlxPoint;
 	var _health:Int;
 
 	// logic variables
@@ -34,8 +40,6 @@ class Enemy extends FlxSprite
 
 	// player variables
 	var _player:Player;
-	var _seesPlayer:Bool;
-	var _playerMidpoint:FlxPoint;
 
 	// misc variables
 	var _bullets:FlxTypedGroup<EnemyBullet>;
@@ -47,7 +51,7 @@ class Enemy extends FlxSprite
 
 		// loads type and sprite
 		this._type = _type;
-		var graphic = if (_type == ARCHER) "assets/images/boss.png" else "assets/images/enemy.png"; // conditional loads sprite for specific type of enemy
+		var graphic = if (_type == ARCHER) "assets/images/boss.png" else "assets/images/grunt.png"; // conditional loads sprite for specific type of enemy
 		loadGraphic(graphic, true, 16, 16); // loads specified graphic and indicates it is 16x16
 
 		// animations
@@ -89,7 +93,7 @@ class Enemy extends FlxSprite
 				animation.play("walkingRight"); // set animation right
 			}
 		}
-		// brain.update(elapsed);
+		_brain.update(elapsed);
 		super.update(elapsed);
 	}
 
@@ -207,5 +211,17 @@ class Enemy extends FlxSprite
 		super.kill();
 
 		FlxSpriteUtil.flicker(this, 0, 0.02, true);
+	}
+
+	public function checkEnemyVision()
+	{
+		if (_tileMap.ray(_enemyMidpoint, _playerMidpoint)) // conditional if player is in direct line of site
+		{
+			_seesPlayer = true; // sets seesPlayer variable to true
+		}
+		else
+		{
+			_seesPlayer = false; // sets seesPlayer variable to false
+		}
 	}
 }
