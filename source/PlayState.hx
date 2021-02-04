@@ -37,8 +37,6 @@ class PlayState extends FlxState
 
 	public var _hud:HUD;
 
-	var health:Int = 6;
-
 	// Meta groups
 	var _objects:FlxGroup;
 	var _hazards:FlxGroup;
@@ -58,6 +56,7 @@ class PlayState extends FlxState
 
 		// Player
 		_player = new Player();
+		_player.health = 6;
 
 		// Map setup
 		_map = new FlxOgmo3Loader(AssetPaths.moonlight__ogmo, AssetPaths.room_002__json);
@@ -118,10 +117,15 @@ class PlayState extends FlxState
 	{
 		super.update(elapsed);
 
+		if (!_player.alive)
+			FlxG.switchState(new MenuState());
+
 		// collisions with environment
 		FlxG.collide(_tileMap, _objects);
 		FlxG.overlap(_hazards, _player, overlapped);
 		FlxG.overlap(_bullets, _hazards, overlapped);
+
+		_hud.updateHealth(_player);
 
 		_enemies.forEachAlive(checkEnemyVision);
 

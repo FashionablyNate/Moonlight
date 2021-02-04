@@ -4,9 +4,6 @@ import flixel.FlxG;
 import flixel.FlxObject;
 import flixel.FlxSprite;
 import flixel.addons.util.FlxFSM;
-import flixel.input.actions.FlxActionManager;
-import flixel.math.FlxPoint;
-import flixel.system.FlxAssets;
 import flixel.util.FlxColor;
 import flixel.util.FlxSpriteUtil;
 
@@ -17,9 +14,6 @@ class Player extends FlxSprite
 
 	// declares finite state machine variable
 	public var fsm:FlxFSM<FlxSprite>;
-	public var flickering:Bool = false;
-
-	static var actions:FlxActionManager;
 
 	public function new(x:Float = 0, y:Float = 0)
 	{
@@ -60,18 +54,15 @@ class Player extends FlxSprite
 
 	override public function hurt(damage:Float):Void
 	{
-		damage = 0;
-
-		if (flickering)
+		if (FlxSpriteUtil.isFlickering(this))
 			return;
 
-		FlxSpriteUtil.flicker(this, 0.2, 0.02, true);
+		FlxSpriteUtil.flicker(this, 1, 0.02, true);
 
 		if (velocity.x > 0)
-			velocity.x = -maxVelocity.x;
+			velocity.x = -50;
 		else
-			velocity.x = maxVelocity.x;
-
+			velocity.x = 50;
 		super.hurt(damage);
 	}
 }
