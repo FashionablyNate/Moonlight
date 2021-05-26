@@ -21,6 +21,6 @@ class Potion extends FlxSprite
 
 	function finishKill(_)
 	{
-		exists = false; // removes coin
+		exists = false; // removes potion
 	}
 }

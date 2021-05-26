@@ -1,5 +1,7 @@
 package;
 
+import Player.Jump;
+import Player.SuperJump;
 import AssetsPaths.AssetPaths;
 import flixel.FlxG;
 import flixel.FlxObject;
@@ -16,8 +18,7 @@ import flixel.tile.FlxTilemap;
 import flixel.ui.FlxButton.FlxTypedButton;
 import flixel.util.FlxColor;
 import haxe.macro.Expr.ObjectField;
-import js.html.CaretPosition;
-
+import flixel.util.FlxTimer;
 using flixel.util.FlxSpriteUtil;
 
 /* This is the class that controls the main play state of the game. */
@@ -31,6 +32,7 @@ class PlayState extends FlxState
 	// Game object variables
 	var _player:Player;
 	var _potion:FlxTypedGroup<Potion>;
+	var potionTimer = new FlxTimer();
 	var _enemies:FlxTypedGroup<Enemy>;
 	var _enemyBullets:FlxTypedGroup<EnemyBullet>;
 	var _bullets:FlxTypedGroup<Bullet>;
@@ -121,6 +123,10 @@ class PlayState extends FlxState
 		FlxG.collide(_tileMap, _objects);
 		FlxG.overlap(_hazards, _player, overlapped);
 		FlxG.overlap(_bullets, _hazards, overlapped);
+		FlxG.overlap(_player, _potion, playerTouchPotion);
+		if (!Player.Conditions.attackOver) {
+			FlxG.overlap (_player, _hazards, overlapped);
+		}
 
 		_hud.updateHealth(_player);
 
@@ -167,22 +173,29 @@ class PlayState extends FlxState
 			_enemies._seesPlayer = false; // sets seesPlayer variable to false
 		}
 	}
-}
-/* this is a function that decides what happens when a player touches a potion object 
-	function playerTouchPotion(player:Player, potion:Potion)
+
+	/* this is a function that decides what happens when a player touches a potion object */
+	function playerTouchPotion(_player:Player, _potion:Potion)
 	{
 		// verifies player and potion both exist when they overlap
-		if (player.alive && player.exists && potion.alive && potion.exists)
+		if (_player.alive && _player.exists && _potion.alive && _potion.exists)
 		{
+			potionTimer.start(5, removePotionEffects, 1);
 			// gives player ability
-			player.fsm.transitions.replace(Player.Jump, Player.SuperJump);
-			player.fsm.transitions.add(Player.Jump, Player.Idle, Player.Conditions.grounded);
+			_player.fsm.transitions.replace(Player.Jump, Player.SuperJump);
+			_player.fsm.transitions.add(Player.Jump, Player.Idle, Player.Conditions.grounded);
 
 			// removes potion
-			potion.kill();
+			_potion.kill();
 		}
 	}
 
+	function removePotionEffects(timer:FlxTimer):Void
+	{
+		_player.fsm.transitions.replace(Player.SuperJump, Player.Jump);
+		_player.fsm.transitions.add(Player.SuperJump, Player.Idle, Player.Conditions.grounded);
+	}
+}
 	/* this is a function that determines if the player is close enough for an enemy to see them
 	function checkEnemyVision(grunt:Grunt)
 	{

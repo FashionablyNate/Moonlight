@@ -1,5 +1,11 @@
 package;
 
+import flixel.addons.effects.chainable.FlxRainbowEffect;
+import flixel.addons.effects.chainable.FlxTrailEffect;
+import flixel.addons.effects.chainable.FlxEffectSprite;
+import haxe.iterators.StringIterator;
+import js.html.audio.DelayNode;
+import haxe.Timer;
 import flixel.FlxG;
 import flixel.FlxObject;
 import flixel.FlxSprite;
@@ -12,7 +18,6 @@ class Player extends FlxSprite
 {
 	// constant unchanging value, so we use UPPERCASE and static inline class
 	public static inline var GRAVITY:Float = 600;
-
 	// declares finite state machine variable
 	public var fsm:FlxFSM<FlxSprite>;
 
@@ -43,6 +48,8 @@ class Player extends FlxSprite
 
 		fsm = new FlxFSM<FlxSprite>(this);
 		fsm.transitions.add(Idle, Jump, Conditions.jump).add(Jump, Idle, Conditions.grounded).start(Idle);
+		fsm.transitions.add(Idle, Attack, Conditions.attack).add(Attack, Idle, Conditions.attackFinished).start(Idle);
+		fsm.transitions.add(Jump, Attack, Conditions.attack).add(Attack, Idle, Conditions.attackFinished).start(Idle);
 	}
 
 	// overrides update() function so this is called everytime update() is called
@@ -55,8 +62,9 @@ class Player extends FlxSprite
 
 	override public function hurt(damage:Float):Void
 	{
-		if (FlxSpriteUtil.isFlickering(this))
-			return;
+		if (!Player.Conditions.attackOver) return;
+
+		if (FlxSpriteUtil.isFlickering(this)) return;
 
 		FlxSpriteUtil.flicker(this, 1, 0.02, true);
 
@@ -88,10 +96,16 @@ class Player extends FlxSprite
 
 class Conditions
 {
+	public static var attackOver:Bool;
 	public static function jump(Owner:FlxSprite):Bool
 	{
 		// conditional if player just pressed jump, and if they're grounded
 		return (FlxG.keys.justPressed.UP && Owner.isTouching(FlxObject.DOWN));
+	}
+
+	public static function attack(Owner:FlxSprite):Bool
+	{
+		return (FlxG.keys.justPressed.SPACE);
 	}
 
 	public static function grounded(Owner:FlxSprite):Bool
@@ -100,10 +114,15 @@ class Conditions
 		return Owner.isTouching(FlxObject.DOWN);
 	}
 
+	public static function attackFinished(Owner:FlxSprite):Bool
+		{
+			return (attackOver);
+		}
+
 	public static function animationFinished(Owner:FlxSprite):Bool
 	{
 		// conditional animation is finished
-		return Owner.animation.finished;
+		return (Owner.animation.finished);
 	}
 }
 
@@ -111,6 +130,8 @@ class Idle extends FlxFSMState<FlxSprite>
 {
 	override public function enter(owner:FlxSprite, fsm:FlxFSM<FlxSprite>):Void
 	{
+		owner.maxVelocity.set(100, 600);
+		owner.acceleration.x = 0;
 		// this is the intial and idle state
 		if (owner.facing == FlxObject.LEFT)
 		{
@@ -155,6 +176,30 @@ class Idle extends FlxFSMState<FlxSprite>
 			// reduces velocity
 			owner.velocity.x *= 0.9;
 		}
+	}
+}
+
+class Attack extends FlxFSMState<FlxSprite>
+{
+	var attackTimer = new FlxTimer();
+	override public function enter(owner:FlxSprite, fsm:FlxFSM<FlxSprite>):Void
+	{
+		Player.Conditions.attackOver = false;
+		attackTimer.start(0.5, attackOver, 1);
+		if (owner.facing == FlxObject.LEFT) {
+			owner.animation.play("walkingLeft");
+			owner.maxVelocity.x = 10000;
+			owner.acceleration.x = -700;
+		} else {
+			owner.animation.play("walkingRight");
+			owner.maxVelocity.x = 10000;
+			owner.acceleration.x = 700;
+		}
+	}
+
+	function attackOver(timer:FlxTimer):Void
+	{
+		Player.Conditions.attackOver = true;
 	}
 }
 

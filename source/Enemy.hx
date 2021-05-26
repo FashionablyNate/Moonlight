@@ -32,7 +32,6 @@ class Enemy extends FlxSprite
 
 	// intrinsic variables
 	var _type:EnemyType; // declare enemy type variable
-	var _health:Int;
 
 	// logic variables
 	var _brain:FSM; // define FSM logic variabe
@@ -76,7 +75,7 @@ class Enemy extends FlxSprite
 
 		// intrinsic
 		_enemyMidpoint = FlxPoint.get();
-		_health = 2;
+		health = 2;
 	}
 
 	// updates everything inside once a frame
@@ -198,9 +197,8 @@ class Enemy extends FlxSprite
 
 	override public function hurt(Damage:Float):Void
 	{
-		FlxSpriteUtil.flicker(this, 0.2, 0.02, true);
-
-		super.hurt(Damage);
+		if (!FlxSpriteUtil.isFlickering(this)) super.hurt(Damage);
+		FlxSpriteUtil.flicker(this, 0.5, 0.02, true);
 	}
 
 	override public function kill():Void
@@ -209,7 +207,7 @@ class Enemy extends FlxSprite
 			return;
 
 		super.kill();
-
+		FlxG.camera.shake(0.003, 0.25);
 		FlxSpriteUtil.flicker(this, 0, 0.02, true);
 	}
 
