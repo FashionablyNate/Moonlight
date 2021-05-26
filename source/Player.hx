@@ -4,7 +4,6 @@ import flixel.addons.effects.chainable.FlxRainbowEffect;
 import flixel.addons.effects.chainable.FlxTrailEffect;
 import flixel.addons.effects.chainable.FlxEffectSprite;
 import haxe.iterators.StringIterator;
-import js.html.audio.DelayNode;
 import haxe.Timer;
 import flixel.FlxG;
 import flixel.FlxObject;
@@ -18,6 +17,7 @@ class Player extends FlxSprite
 {
 	// constant unchanging value, so we use UPPERCASE and static inline class
 	public static inline var GRAVITY:Float = 600;
+
 	// declares finite state machine variable
 	public var fsm:FlxFSM<FlxSprite>;
 
@@ -37,6 +37,8 @@ class Player extends FlxSprite
 		animation.add("facingLeft", [3], 6);
 		animation.add("walkingRight", [1, 0, 2, 0], 6);
 		animation.add("walkingLeft", [4, 3, 5, 3], 6);
+		animation.add("runningRight", [1, 0, 2, 0], 12);
+		animation.add("runningLeft", [4, 3, 5, 3], 12);
 		animation.add("jumping", [6], 6);
 
 		// adds in gravity and sets max velocity
@@ -96,6 +98,7 @@ class Player extends FlxSprite
 
 class Conditions
 {
+	public static var cooldown:Bool = false;
 	public static var attackOver:Bool;
 	public static function jump(Owner:FlxSprite):Bool
 	{
@@ -181,25 +184,37 @@ class Idle extends FlxFSMState<FlxSprite>
 
 class Attack extends FlxFSMState<FlxSprite>
 {
+	var cooldownTimer = new FlxTimer();
 	var attackTimer = new FlxTimer();
 	override public function enter(owner:FlxSprite, fsm:FlxFSM<FlxSprite>):Void
 	{
-		Player.Conditions.attackOver = false;
-		attackTimer.start(0.5, attackOver, 1);
-		if (owner.facing == FlxObject.LEFT) {
-			owner.animation.play("walkingLeft");
-			owner.maxVelocity.x = 10000;
-			owner.acceleration.x = -700;
+		if (!Player.Conditions.cooldown) {
+			Player.Conditions.attackOver = false;
+			attackTimer.start(0.5, attackOver, 1);
+			if (owner.facing == FlxObject.LEFT) {
+				owner.animation.play("runningLeft");
+				owner.maxVelocity.x = 10000;
+				owner.acceleration.x = -700;
+			} else {
+				owner.animation.play("runningRight");
+				owner.maxVelocity.x = 10000;
+				owner.acceleration.x = 700;
+			}
 		} else {
-			owner.animation.play("walkingRight");
-			owner.maxVelocity.x = 10000;
-			owner.acceleration.x = 700;
+			Player.Conditions.attackOver = true;
 		}
 	}
 
 	function attackOver(timer:FlxTimer):Void
 	{
+		cooldownTimer.start(1, cooldownOver);
+		Player.Conditions.cooldown = true;
 		Player.Conditions.attackOver = true;
+	}
+
+	function cooldownOver(timer:FlxTimer):Void
+	{
+		Player.Conditions.cooldown = false;
 	}
 }
 
