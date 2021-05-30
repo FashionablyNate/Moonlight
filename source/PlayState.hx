@@ -61,7 +61,7 @@ class PlayState extends FlxState
 		_player.health = 6;
 
 		// Map setup
-		_map = new FlxOgmo3Loader(AssetPaths.moonlight__ogmo, AssetPaths.room_002__json);
+		_map = new FlxOgmo3Loader(AssetPaths.moonlight__ogmo, AssetPaths.room_001__json);
 		_tileMap = _map.loadTilemap("assets/images/platformer.png", "platforms");
 		_tileMap.follow();
 		_tileMap.setTileProperties(1, FlxObject.ANY);

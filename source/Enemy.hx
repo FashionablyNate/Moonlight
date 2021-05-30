@@ -154,8 +154,10 @@ class Enemy extends FlxSprite
 				{
 					_moveDirection = 0; // move right
 				}
-				velocity.set(SPEED, 0); // sets velocity to top speed
-				velocity.rotate(FlxPoint.weak(), _moveDirection); // sets movement direction found above
+				if (this.isTouching(FlxObject.DOWN)) {
+					velocity.set(SPEED, 0); // sets velocity to top speed
+					velocity.rotate(FlxPoint.weak(), _moveDirection); // sets movement direction found above
+				}
 				if (velocity.x < 0) // if moving left
 				{
 					animation.play("walkingLeft"); // set animation left
