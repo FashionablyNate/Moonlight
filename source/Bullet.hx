@@ -5,9 +5,11 @@ import flixel.FlxObject;
 import flixel.FlxSprite;
 import flixel.math.FlxPoint;
 import flixel.system.FlxAssets;
+import flixel.util.FlxTimer;
 
 class Bullet extends FlxSprite
 {
+	var attackTimer = new FlxTimer();
 	var _speed:Float;
 
 	public function new()
@@ -25,7 +27,8 @@ class Bullet extends FlxSprite
 		animation.add("right", [3]);
 		animation.add("poof", [4, 5, 6, 7], 50, false);
 
-		_speed = 360;
+		attackTimer.start(0.3, timesUp);
+		_speed = 0;
 	}
 
 	override public function update(elapsed:Float):Void
@@ -75,5 +78,10 @@ class Bullet extends FlxSprite
 				animation.play("right");
 				velocity.x = _speed;
 		}
+	}
+
+	function timesUp(timer:FlxTimer):Void
+	{
+		kill();
 	}
 }

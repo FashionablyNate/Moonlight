@@ -1,5 +1,7 @@
 package;
 
+import flixel.math.FlxPoint;
+import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.addons.effects.chainable.FlxRainbowEffect;
 import flixel.addons.effects.chainable.FlxTrailEffect;
 import flixel.addons.effects.chainable.FlxEffectSprite;
@@ -18,10 +20,12 @@ class Player extends FlxSprite
 	// constant unchanging value, so we use UPPERCASE and static inline class
 	public static inline var GRAVITY:Float = 600;
 
+	public static var _bullets:FlxTypedGroup<Bullet>;
+
 	// declares finite state machine variable
 	public var fsm:FlxFSM<FlxSprite>;
 
-	public function new(x:Float = 0, y:Float = 0)
+	public function new(x:Float = 0, y:Float = 0, bullets:FlxTypedGroup<Bullet> )
 	{
 		// super goes up chain to parent class (flxSprite) and calls constructor (new)
 		// passing x and y as arguments
@@ -40,6 +44,8 @@ class Player extends FlxSprite
 		animation.add("runningRight", [1, 0, 2, 0], 12);
 		animation.add("runningLeft", [4, 3, 5, 3], 12);
 		animation.add("jumping", [6], 6);
+
+		_bullets = bullets;
 
 		// adds in gravity and sets max velocity
 		acceleration.y = GRAVITY;
@@ -186,12 +192,14 @@ class Attack extends FlxFSMState<FlxSprite>
 {
 	var cooldownTimer = new FlxTimer();
 	var attackTimer = new FlxTimer();
+	var point = new FlxPoint();
+	var attackRight = new FlxPoint();
 	override public function enter(owner:FlxSprite, fsm:FlxFSM<FlxSprite>):Void
 	{
 		if (!Player.Conditions.cooldown) {
 			Player.Conditions.attackOver = false;
-			attackTimer.start(0.5, attackOver, 1);
-			if (owner.facing == FlxObject.LEFT) {
+			attackTimer.start(0.2, attackOver, 1);
+			/*if (owner.facing == FlxObject.LEFT) {
 				owner.animation.play("runningLeft");
 				owner.maxVelocity.x = 10000;
 				owner.acceleration.x = -700;
@@ -199,7 +207,11 @@ class Attack extends FlxFSMState<FlxSprite>
 				owner.animation.play("runningRight");
 				owner.maxVelocity.x = 10000;
 				owner.acceleration.x = 700;
-			}
+			}*/
+			point = owner.getMidpoint();
+			attackRight.set(8, 0);
+			point.addPoint(attackRight);
+			Player._bullets.recycle(Bullet.new).shoot(point, FlxObject.RIGHT);
 		} else {
 			Player.Conditions.attackOver = true;
 		}
@@ -207,7 +219,7 @@ class Attack extends FlxFSMState<FlxSprite>
 
 	function attackOver(timer:FlxTimer):Void
 	{
-		cooldownTimer.start(1, cooldownOver);
+		cooldownTimer.start(0.1, cooldownOver);
 		Player.Conditions.cooldown = true;
 		Player.Conditions.attackOver = true;
 	}

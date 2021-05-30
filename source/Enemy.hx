@@ -81,19 +81,21 @@ class Enemy extends FlxSprite
 	// updates everything inside once a frame
 	override public function update(elapsed:Float)
 	{
-		if ((velocity.x != 0 || velocity.y != 0) && touching == FlxObject.NONE) // conditional if enemy is moving
-		{
-			if (velocity.x < 0) // if moving left
+		if (!FlxSpriteUtil.isFlickering(this)) {
+			if ((velocity.x != 0 || velocity.y != 0) && touching == FlxObject.NONE) // conditional if enemy is moving
 			{
-				animation.play("walkingLeft"); // set animation left
+				if (velocity.x < 0) // if moving left
+				{
+					animation.play("walkingLeft"); // set animation left
+				}
+				else // else moving right
+				{
+					animation.play("walkingRight"); // set animation right
+				}
 			}
-			else // else moving right
-			{
-				animation.play("walkingRight"); // set animation right
-			}
+			_brain.update(elapsed);
+			super.update(elapsed);
 		}
-		_brain.update(elapsed);
-		super.update(elapsed);
 	}
 
 	// garbage collection
@@ -197,8 +199,10 @@ class Enemy extends FlxSprite
 
 	override public function hurt(Damage:Float):Void
 	{
+		this.acceleration.x = 0;
+		this.velocity.x = 0;
 		if (!FlxSpriteUtil.isFlickering(this)) super.hurt(Damage);
-		FlxSpriteUtil.flicker(this, 0.5, 0.02, true);
+		FlxSpriteUtil.flicker(this, 0.75, 0.02, true);
 	}
 
 	override public function kill():Void

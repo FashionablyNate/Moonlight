@@ -57,7 +57,7 @@ class PlayState extends FlxState
 		_potion = new FlxTypedGroup<Potion>();
 
 		// Player
-		_player = new Player();
+		_player = new Player(0, 0, _bullets);
 		_player.health = 6;
 
 		// Map setup
