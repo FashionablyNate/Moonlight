@@ -152,6 +152,8 @@ class PlayState extends FlxState
 	/* This is the overlap callback function, triggered by FlxG.overlap(). */
 	function overlapped(Sprite1:FlxObject, Sprite2:FlxObject):Void
 	{
+		if (FlxSpriteUtil.isFlickering(Sprite1)) return;
+
 		if ((Sprite1 is EnemyBullet) || (Sprite1 is Bullet)) // conditional to see if bullet
 			Sprite1.kill(); // deletes bullet
 

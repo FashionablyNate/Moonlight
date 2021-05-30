@@ -81,21 +81,19 @@ class Enemy extends FlxSprite
 	// updates everything inside once a frame
 	override public function update(elapsed:Float)
 	{
-		if (!FlxSpriteUtil.isFlickering(this)) {
-			if ((velocity.x != 0 || velocity.y != 0) && touching == FlxObject.NONE) // conditional if enemy is moving
+		if ((velocity.x != 0 || velocity.y != 0) && touching == FlxObject.NONE) // conditional if enemy is moving
+		{
+			if (velocity.x < 0) // if moving left
 			{
-				if (velocity.x < 0) // if moving left
-				{
-					animation.play("walkingLeft"); // set animation left
-				}
-				else // else moving right
-				{
-					animation.play("walkingRight"); // set animation right
-				}
+				animation.play("walkingLeft"); // set animation left
 			}
-			_brain.update(elapsed);
-			super.update(elapsed);
+			else // else moving right
+			{
+				animation.play("walkingRight"); // set animation right
+			}
 		}
+		_brain.update(elapsed);
+		super.update(elapsed);
 	}
 
 	// garbage collection
@@ -139,7 +137,7 @@ class Enemy extends FlxSprite
 
 	function chase(elapsed:Float)
 	{
-		if (!_seesPlayer) // conditional if player isn't visible
+		if (!_seesPlayer || FlxSpriteUtil.isFlickering(this)) // conditional if player isn't visible
 		{
 			_brain.activeState = idle; // sets idle state
 		}
@@ -199,10 +197,14 @@ class Enemy extends FlxSprite
 
 	override public function hurt(Damage:Float):Void
 	{
-		this.acceleration.x = 0;
-		this.velocity.x = 0;
-		if (!FlxSpriteUtil.isFlickering(this)) super.hurt(Damage);
-		FlxSpriteUtil.flicker(this, 0.75, 0.02, true);
+		if (FlxSpriteUtil.isFlickering(this)) return;
+		if (_playerMidpoint.x < this.getMidpoint().x) {
+			this.velocity.set(100, -100);
+		} else {
+			this.velocity.set(-100, -100);
+		}
+		super.hurt(Damage);
+		FlxSpriteUtil.flicker(this, 0.5, 0.02, true);
 	}
 
 	override public function kill():Void
@@ -217,13 +219,14 @@ class Enemy extends FlxSprite
 
 	public function checkEnemyVision()
 	{
-		if (_tileMap.ray(_enemyMidpoint, _playerMidpoint)) // conditional if player is in direct line of site
-		{
-			_seesPlayer = true; // sets seesPlayer variable to true
-		}
-		else
-		{
-			_seesPlayer = false; // sets seesPlayer variable to false
+		if (FlxSpriteUtil.isFlickering(this)) {
+			_seesPlayer = false;
+		} else {
+			if (_tileMap.ray(_enemyMidpoint, _playerMidpoint)) { // conditional if player is in direct line of site
+				_seesPlayer = true; // sets seesPlayer variable to true
+			} else {
+				_seesPlayer = false; // sets seesPlayer variable to false
+			}
 		}
 	}
 }
