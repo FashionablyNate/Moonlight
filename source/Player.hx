@@ -43,7 +43,10 @@ class Player extends FlxSprite
 		animation.add("walkingLeft", [4, 3, 5, 3], 6);
 		animation.add("runningRight", [1, 0, 2, 0], 12);
 		animation.add("runningLeft", [4, 3, 5, 3], 12);
-		animation.add("jumping", [6], 6);
+		animation.add("jumpingRight", [6], 6);
+		animation.add("jumpingLeft", [7], 6);
+		animation.add("attackingRight", [0, 8, 9, 10, 10, 10], 8);
+		animation.add("attackingLeft", [3, 11, 12, 13, 13, 13], 8);
 
 		_bullets = bullets;
 
@@ -194,11 +197,24 @@ class Attack extends FlxFSMState<FlxSprite>
 	var attackTimer = new FlxTimer();
 	var point = new FlxPoint();
 	var attackRight = new FlxPoint();
+	var attackLeft = new FlxPoint();
 	override public function enter(owner:FlxSprite, fsm:FlxFSM<FlxSprite>):Void
 	{
 		if (!Player.Conditions.cooldown) {
 			Player.Conditions.attackOver = false;
-			attackTimer.start(0.2, attackOver, 1);
+			attackTimer.start(0.75, attackOver, 1);
+			point = owner.getMidpoint();
+			attackRight.set(4, 2.5);
+			attackLeft.set(-4, 2.5);
+			if (owner.facing == FlxObject.LEFT) {
+				owner.animation.play("attackingLeft");
+				point.addPoint(attackLeft);
+				Player._bullets.recycle(Bullet.new).shoot(point, FlxObject.LEFT);
+			} else {
+				owner.animation.play("attackingRight");
+				point.addPoint(attackRight);
+				Player._bullets.recycle(Bullet.new).shoot(point, FlxObject.RIGHT);
+			}
 			/*if (owner.facing == FlxObject.LEFT) {
 				owner.animation.play("runningLeft");
 				owner.maxVelocity.x = 10000;
@@ -208,10 +224,6 @@ class Attack extends FlxFSMState<FlxSprite>
 				owner.maxVelocity.x = 10000;
 				owner.acceleration.x = 700;
 			}*/
-			point = owner.getMidpoint();
-			attackRight.set(8, 0);
-			point.addPoint(attackRight);
-			Player._bullets.recycle(Bullet.new).shoot(point, FlxObject.RIGHT);
 		} else {
 			Player.Conditions.attackOver = true;
 		}
@@ -235,7 +247,10 @@ class Jump extends FlxFSMState<FlxSprite>
 	override public function enter(owner:FlxSprite, fsm:FlxFSM<FlxSprite>):Void
 	{
 		// plays jumping animation
-		owner.animation.play("jumping");
+		if (owner.facing == FlxObject.LEFT)
+			owner.animation.play("jumpingLeft");
+		else
+			owner.animation.play("jumpingRight");
 		// sets y velocity to -200 (so player moves against gravity)
 		owner.velocity.y = -200;
 	}
@@ -257,7 +272,10 @@ class SuperJump extends Jump
 {
 	override public function enter(owner:FlxSprite, fsm:FlxFSM<FlxSprite>):Void
 	{
-		owner.animation.play("jumping");
+		if (owner.facing == FlxObject.LEFT)
+			owner.animation.play("jumpingLeft");
+		else
+			owner.animation.play("jumpingRight");
 		owner.velocity.y = -300;
 	}
 }

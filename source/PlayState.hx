@@ -124,9 +124,7 @@ class PlayState extends FlxState
 		FlxG.overlap(_hazards, _player, overlapped);
 		FlxG.overlap(_bullets, _hazards, overlapped);
 		FlxG.overlap(_player, _potion, playerTouchPotion);
-		if (!Player.Conditions.attackOver) {
-			FlxG.overlap (_player, _hazards, overlapped);
-		}
+		FlxG.overlap (_player, _hazards, overlapped);
 
 		_hud.updateHealth(_player);
 
