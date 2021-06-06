@@ -57,9 +57,13 @@ class Player extends FlxSprite
 		setSize(8, 16); // sets player size smaller so he can fit through doorways
 		offset.set(4, 0); // sets player offset from actual size and 16x16 dimensions
 
+		// creates finite state machine object
 		fsm = new FlxFSM<FlxSprite>(this);
+		// adds transition from idle to jump based on jump condition as well as transition from jump to idle based on grounded condition
 		fsm.transitions.add(Idle, Jump, Conditions.jump).add(Jump, Idle, Conditions.grounded).start(Idle);
+		// adds transition from idle to attack based on attack condition as well as transition from attack to idle based on attackFinished condition
 		fsm.transitions.add(Idle, Attack, Conditions.attack).add(Attack, Idle, Conditions.attackFinished).start(Idle);
+		// adds transition from jump to attack to allow air attacks based on attack condition as well as transition from attack to idle based on attackFinished condition
 		fsm.transitions.add(Jump, Attack, Conditions.attack).add(Attack, Idle, Conditions.attackFinished).start(Idle);
 	}
 
@@ -193,6 +197,7 @@ class Idle extends FlxFSMState<FlxSprite>
 
 class Attack extends FlxFSMState<FlxSprite>
 {
+	// initialize variables
 	var cooldownTimer = new FlxTimer();
 	var attackTimer = new FlxTimer();
 	var point = new FlxPoint();
@@ -200,44 +205,49 @@ class Attack extends FlxFSMState<FlxSprite>
 	var attackLeft = new FlxPoint();
 	override public function enter(owner:FlxSprite, fsm:FlxFSM<FlxSprite>):Void
 	{
+		// checks if the cooldown timer is active, if it is then it won't activate attack
 		if (!Player.Conditions.cooldown) {
+			// sets attackOver flag to false
 			Player.Conditions.attackOver = false;
+			// starts attack timer
 			attackTimer.start(0.75, attackOver, 1);
+			// gets midpoint of player
 			point = owner.getMidpoint();
+			// adjusts where sword hilt should be
 			attackRight.set(4, 2.5);
 			attackLeft.set(-4, 2.5);
+			// if player is facing left
 			if (owner.facing == FlxObject.LEFT) {
+				// plays animation
 				owner.animation.play("attackingLeft");
+				// sets bullet point
 				point.addPoint(attackLeft);
+				// recycles a bullet objects and calls shoot
 				Player._bullets.recycle(Bullet.new).shoot(point, FlxObject.LEFT);
+			// if player is facing right
 			} else {
+				// plays animations
 				owner.animation.play("attackingRight");
+				// sets bullet positions
 				point.addPoint(attackRight);
+				// recycles a bullet object and calls shoot
 				Player._bullets.recycle(Bullet.new).shoot(point, FlxObject.RIGHT);
 			}
-			/*if (owner.facing == FlxObject.LEFT) {
-				owner.animation.play("runningLeft");
-				owner.maxVelocity.x = 10000;
-				owner.acceleration.x = -700;
-			} else {
-				owner.animation.play("runningRight");
-				owner.maxVelocity.x = 10000;
-				owner.acceleration.x = 700;
-			}*/
+		// stops attack since cooldown is active
 		} else {
+			// ends attack
 			Player.Conditions.attackOver = true;
 		}
 	}
-
-	function attackOver(timer:FlxTimer):Void
-	{
+	function attackOver(timer:FlxTimer):Void {
+		// starts cooldown timer and ends attack when timer ends
 		cooldownTimer.start(0.1, cooldownOver);
 		Player.Conditions.cooldown = true;
 		Player.Conditions.attackOver = true;
 	}
 
-	function cooldownOver(timer:FlxTimer):Void
-	{
+	function cooldownOver(timer:FlxTimer):Void {
+		// sets cooldown flag to false to allow attacks when timer is over
 		Player.Conditions.cooldown = false;
 	}
 }
