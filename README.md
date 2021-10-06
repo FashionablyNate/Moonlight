@@ -9,5 +9,7 @@ A two-dimensional side-scrolling arcade-style game I designed and built called M
 ## Compiling:
 
 1. Clone this repository.
-2. Install Haxe and HaxeFlixel (More info on how to do that here: https://haxeflixel.com/documentation/hello-world/).
+2. Install Haxe and HaxeFlixel (More info on how to do that here: https://haxeflixel.com/documentation/getting-started/).
 3. Run the `lime build` command specific to your system.
+
+![beforePotion](https://user-images.githubusercontent.com/49291237/136272344-045587d3-4c0a-4d58-8785-d9b2af9e5bd3.png)
